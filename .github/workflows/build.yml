@@ -1,14 +1,20 @@
-name: Label Triggered CI
+name: CI
 
 on:
-  # Trigger when a label is added to a PR
   pull_request:
     types: [labeled]
+    branches:
+      - main
+  
+  push:
+    branches:
+      - main
 
 jobs:
   ci_and_cleanup:
-    # Run only when the specific label is applied
-    if: github.event.label.name == 'needs-build'
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && github.event.label.name == 'needs-build')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -17,9 +23,9 @@ jobs:
 
       - name: Checkout PR Code
         uses: actions/checkout@v5
-        with:
+        # with:
           # Checkout the commit associated with the PR event
-          ref: ${{ github.event.pull_request.head.sha }}
+          # ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Work
         run: |
@@ -28,6 +34,7 @@ jobs:
           cat README.md
 
       - name: Remove 'needs-build' label
+        if: github.event_name == 'pull_request'
         # Use the GitHub CLI to remove the label from the PR
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
