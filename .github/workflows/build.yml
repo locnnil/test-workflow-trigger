@@ -1,39 +1,37 @@
-# This is a basic workflow to help you get started with Actions
+name: Label Triggered CI
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  # push:
-  #   branches: [ "main" ]
+  # Trigger when a label is added to a PR
   pull_request:
-    branches: [ "main" ]
-    types: [ ready_for_review ]
-  issue_comment:
-    types: [created]
+    types: [labeled]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  ci_and_cleanup:
+    # Run only when the specific label is applied
+    if: github.event.label.name == 'needs-build'
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    permissions:
+      contents: read
+      pull-requests: write # Needed to remove the label
     steps:
-      - name: Checkout the LATEST commit on the branch
-        uses: actions/checkout@v4
-        with:
-          # Use the full Git reference to ensure you check out the current head
-          # ${{ github.ref }} will be something like 'refs/heads/feature-branch-1'
-          ref: ${{ github.ref }}
 
-      - name: Confirm the Commit SHA
+      - name: Checkout PR Code
+        uses: actions/checkout@v5
+        with:
+          # Checkout the commit associated with the PR event
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Work
         run: |
-          echo "The checked out SHA is: $(git rev-parse HEAD)"
-          echo "PR number: ${{ github.event.issue.number }}"
+          echo "PR # ${{ github.event.pull_request.number }}"
+          echo "SHA: $(git rev-parse HEAD)"
           cat README.md
+
+      - name: Remove 'needs-build' label
+        # Use the GitHub CLI to remove the label from the PR
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh pr edit $PR_NUMBER --remove-label "needs-build"
+        env:
+          # Use the default token, which has the necessary 'pull-requests: write' permission
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
