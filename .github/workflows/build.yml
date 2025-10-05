@@ -10,6 +10,8 @@ on:
   pull_request:
     branches: [ "main" ]
     types: [ ready_for_review ]
+  issue_comment:
+    types: [created]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,13 +26,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout the LATEST commit on the branch
+        if: ${{ github.event.issue.pull_request }}
         uses: actions/checkout@v4
-        with:
+        # with:
           # Use the full Git reference to ensure you check out the current head
           # ${{ github.ref }} will be something like 'refs/heads/feature-branch-1'
-          ref: ${{ github.ref }}
+          # ref: ${{ github.ref }}
 
       - name: Confirm the Commit SHA
         run: |
           echo "The checked out SHA is: $(git rev-parse HEAD)"
+          echo "PR number: ${{ github.event.issue.number }}"
           cat README.md
