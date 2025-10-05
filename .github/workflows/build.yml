@@ -26,12 +26,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout the LATEST commit on the branch
-        if: ${{ github.event.issue.pull_request }}
         uses: actions/checkout@v4
-        # with:
+        with:
           # Use the full Git reference to ensure you check out the current head
           # ${{ github.ref }} will be something like 'refs/heads/feature-branch-1'
-          # ref: ${{ github.ref }}
+          ref: ${{ github.ref }}
 
       - name: Confirm the Commit SHA
         run: |
