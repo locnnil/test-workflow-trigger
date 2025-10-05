@@ -33,3 +33,4 @@ jobs:
       - name: Confirm the Commit SHA
         run: |
           echo "The checked out SHA is: $(git rev-parse HEAD)"
+          cat README.md
