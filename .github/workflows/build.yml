@@ -33,7 +33,7 @@ jobs:
           cat README.md
 
       - name: Remove 'needs-build' label
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         # Use the GitHub CLI to remove the label from the PR
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
