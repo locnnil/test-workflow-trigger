@@ -19,6 +19,10 @@ jobs:
       contents: read
       pull-requests: write # Needed to remove the label
     steps:
+
+      - name: Checkout PR Code
+        uses: actions/checkout@v5
+
       - name: Comment on the PR
         if: github.event_name == 'pull_request_target'
         env:
@@ -28,9 +32,6 @@ jobs:
           
           PR_NUMBER=${{ github.event.pull_request.number }}
           gh pr comment $PR_NUMBER --body "🏗 [Snap build]($RUN_URL)"
-
-      - name: Checkout PR Code
-        uses: actions/checkout@v5
 
       - name: Work
         run: |
