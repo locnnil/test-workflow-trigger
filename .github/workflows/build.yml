@@ -15,9 +15,8 @@ env:
 
 jobs:
   ci_and_cleanup:
-    if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && github.event.label.name == env.TRIGGER_LABEL)
+    if: github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && ${{ github.event.label.name == env.TRIGGER_LABEL }}) 
     runs-on: ubuntu-latest
     permissions:
       contents: read
