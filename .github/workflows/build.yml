@@ -17,7 +17,7 @@ jobs:
   ci_and_cleanup:
     if: |
       github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && github.event.label.name == "$TRIGGER_LABEL")
+      (github.event_name == 'pull_request' && github.event.label.name == env.TRIGGER_LABEL)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,7 +36,7 @@ jobs:
           echo "SHA: $(git rev-parse HEAD)"
           cat README.md
 
-      - name: "Remove ${TRIGGER_LABEL} label"
+      - name: Remove ${{ env.TRIGGER_LABEL }} label
         if: github.event_name == 'pull_request'
         # Use the GitHub CLI to remove the label from the PR
         run: |
