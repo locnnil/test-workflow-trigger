@@ -10,11 +10,14 @@ on:
     branches:
       - main
 
+env:
+  TRIGGER_LABEL: needs-build
+
 jobs:
   ci_and_cleanup:
     if: |
       github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && github.event.label.name == 'needs-build')
+      (github.event_name == 'pull_request' && github.event.label.name == "$TRIGGER_LABEL")
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,7 +36,7 @@ jobs:
           echo "SHA: $(git rev-parse HEAD)"
           cat README.md
 
-      - name: Remove 'needs-build' label
+      - name: "Remove ${TRIGGER_LABEL} label"
         if: github.event_name == 'pull_request'
         # Use the GitHub CLI to remove the label from the PR
         run: |
