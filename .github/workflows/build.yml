@@ -12,6 +12,7 @@ on:
 
 jobs:
   trigger:
+    name: Trigger and comment
     if: github.event_name == 'push' || 
       (github.event_name == 'pull_request_target' && github.event.label.name == 'needs-build') 
     runs-on: ubuntu-latest
@@ -37,6 +38,7 @@ jobs:
 
   work:
     name: Work
+    needs: [trigger]
     if: github.event_name == 'push' || 
        (github.event_name == 'pull_request_target' && github.event.label.name == 'needs-build')
     permissions:
@@ -57,9 +59,13 @@ jobs:
           cat README.md
 
   clean:
-    name: Clean
+    name: Remove label
+    needs: [trigger, work]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout PR Code
+        uses: actions/checkout@v5
+        
       - name: Remove 'needs-build' label
         if: github.event_name == 'pull_request_target'
         env:
