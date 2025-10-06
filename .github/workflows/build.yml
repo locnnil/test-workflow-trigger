@@ -16,9 +16,9 @@ jobs:
     if: github.event_name == 'push' || 
       (github.event_name == 'pull_request_target' && github.event.label.name == 'needs-build') 
     runs-on: ubuntu-latest
-    # permissions:
-    #   contents: read
-    #   pull-requests: write # Needed to remove the label
+    permissions:
+      contents: read
+      pull-requests: write # Needed to comment on PR
     steps:
       - name: Checkout PR Code
         uses: actions/checkout@v5
@@ -34,16 +34,11 @@ jobs:
           COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA"
           PR_NUMBER=${{ github.event.pull_request.number }}
           
-          gh pr comment $PR_NUMBER --body "Snap build: [Workflow Run]($RUN_URL) | $COMMIT_URL"
+          gh pr comment $PR_NUMBER --body "Snap build: [workflow run]($RUN_URL) | $COMMIT_URL"
 
   work:
     name: Work
     needs: [trigger]
-    if: github.event_name == 'push' || 
-       (github.event_name == 'pull_request_target' && github.event.label.name == 'needs-build')
-    permissions:
-      contents: read
-      pull-requests: write # Needed to remove the trigger label
     strategy:
       fail-fast: false
       matrix:
