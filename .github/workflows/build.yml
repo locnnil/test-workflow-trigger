@@ -16,9 +16,9 @@ jobs:
     if: github.event_name == 'push' || 
       (github.event_name == 'pull_request_target' && github.event.label.name == 'needs-build') 
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write # Needed to remove the label
+    # permissions:
+    #   contents: read
+    #   pull-requests: write # Needed to remove the label
     steps:
       - name: Checkout PR Code
         uses: actions/checkout@v5
@@ -62,6 +62,9 @@ jobs:
     name: Remove label
     needs: [trigger, work]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Needed to remove the label
     steps:
       - name: Checkout PR Code
         uses: actions/checkout@v5
