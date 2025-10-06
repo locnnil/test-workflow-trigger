@@ -31,7 +31,18 @@ jobs:
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           
           PR_NUMBER=${{ github.event.pull_request.number }}
-          gh pr comment $PR_NUMBER --body "🏗 [Snap build]($RUN_URL)"
+
+          # Use the head commit SHA from the pull_request event context
+          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+          
+          # Construct the full commit URL
+          COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA"
+          
+          # Shorten the SHA for display
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          
+          # Use gh CLI to create a comment on the PR
+          gh pr comment $PR_NUMBER --body "Manual CI build triggered by the 'needs-build' label by **@$TRIGGERING_USER**. 🛠️\n\n- **Commit:** [**$SHORT_SHA**]($COMMIT_URL)\n- **Run Details:** [View the workflow run here]($RUN_URL)"
 
       - name: Work
         run: |
@@ -41,10 +52,8 @@ jobs:
 
       - name: Remove 'needs-build' label
         if: github.event_name == 'pull_request_target'
-        # Use the GitHub CLI to remove the label from the PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           gh pr edit $PR_NUMBER --remove-label "needs-build"
-        env:
-          # Use the default token, which has the necessary 'pull-requests: write' permission
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
